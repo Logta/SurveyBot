@@ -2,10 +2,12 @@ package main
 
 import (
     "fmt"
-    "time"
-    "github.com/bwmarrin/discordgo"
     "log"
-    "strings"
+    "os"
+    "errors"
+
+    "github.com/bwmarrin/discordgo"
+	"github.com/joho/godotenv"
 )
 
 func getenv(key, fallback string) string {
@@ -18,13 +20,16 @@ func getenv(key, fallback string) string {
 
 var(
     stopBot = make(chan bool)
-    vcsession *discordgo.VoiceConnection
-    HelloWorld = "!helloworld"
+    ServerName = "!servername"
     ChannelVoiceJoin = "!vcjoin"
     ChannelVoiceLeave = "!vcleave"
+	state = false
+	title = ""
 )
 
 func main() {
+    err := godotenv.Load(fmt.Sprintf("./%s.env", os.Getenv("GO_ENV")))
+
 	//Discordのセッションを作成
 	dg, err := discordgo.New("Bot " + getenv("DISCORD_TOKEN", ""))
 	if err != nil {
@@ -36,7 +41,8 @@ func main() {
         fmt.Println(err)
     }
 
-    dg.AddHandler(onMessageCreate) //全てのWSAPIイベントが発生した時のイベントハンドラを追加
+    dg.AddHandler(messageCreate) //全てのWSAPIイベントが発生した時のイベントハンドラを追加
+
     // websocketを開いてlistening開始
     err = dg.Open()
     if err != nil {
@@ -49,50 +55,87 @@ func main() {
     return
 }
 
-func onMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
-    if err != nil {
-        log.Println("Error getting channel: ", err)
-        return
+	// Ignore all messages created by the bot itself
+	// This isn't required in this specific example but it's a good practice.
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
+    // Server名を取得して返します。
+    if m.Content == ServerName {
+        g, err := s.Guild(m.GuildID)
+        if err != nil {
+            log.Fatal(err)
+        }
+        log.Println(g.Name)
+        s.ChannelMessageSend(m.ChannelID, g.Name)
     }
-        fmt.Printf("%20s %20s %20s > %s\n", m.ChannelID, time.Now().Format(time.Stamp), m.Author.Username, m.Content)
 
-    switch {
-        case strings.HasPrefix(m.Content, fmt.Sprintf("%s %s", getenv("YOUR_CLIENT_ID", ""), HelloWorld))://Bot宛に!helloworld コマンドが実行された時
-            sendMessage(s, m.ChannelID, "Hello world！")
+	//アンケート情報入力スタートのコマンド
+	if m.Content == "!survey" {
+		state = true
+		s.ChannelMessageSend(m.ChannelID, "アンケートのタイトルを入力してください")
+	}
 
-        case strings.HasPrefix(m.Content, fmt.Sprintf("%s %s", getenv("YOUR_CLIENT_ID", ""), ChannelVoiceJoin)):
+	//途中で止める用のコマンド
+	if m.Content == "!cancel" {
+		state = false
+		s.ChannelMessageSend(m.ChannelID, "アンケート作成をキャンセルしました")
+	}
 
-            //今いるサーバーのチャンネル情報の一覧を喋らせる処理を書いておきますね
-                    //c, err := s.State.Channel(m.ChannelID) //チャンネル取得
-            //guildChannels, _ := s.GuildChannels(c.GuildID)
-            //var sendText string
-            //for _, a := range guildChannels{
-                //sendText += fmt.Sprintf("%vチャンネルの%v(IDは%v)\n", a.Type, a.Name, a.ID)
-            //}
-            //sendMessage(s, c, sendText) チャンネルの名前、ID、タイプ(通話orテキスト)をBOTが話す
+	//アンケート情報入力スタートのコマンド
+	if m.Content == "!title" {
+		state = true
+		s.ChannelMessageSend(m.ChannelID, "アンケートのタイトルを入力してください")
+	}
 
-            //VOICE CHANNEL IDには、botを参加させたい通話チャンネルのIDを代入してください
-            //コメントアウトされた上記の処理を使うことでチャンネルIDを確認できます
-            vcsession, _ = s.ChannelVoiceJoin(c.GuildID, "VOICE_CHANNEL_ID", false, false)
-            vcsession.AddHandler(onVoiceReceived) //音声受信時のイベントハンドラ
+	if m.Content == "!state check" {
+		if state && title != "" {
+			s.ChannelMessageSend(m.ChannelID, "アンケート内容を記入してください")
+		} else if state && title == "" {
+			s.ChannelMessageSend(m.ChannelID, "アンケートタイトルを入力してください")
+		} else {
+			s.ChannelMessageSend(m.ChannelID, "アンケートは開始されていません")
+		}
+	}
 
-        case strings.HasPrefix(m.Content, fmt.Sprintf("%s %s", getenv("YOUR_CLIENT_ID", ""), ChannelVoiceLeave)):
-            vcsession.Disconnect() //今いる通話チャンネルから抜ける
-    }
+	if m.Content =="test" {
+
+		mes, _ := s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+			Title: "あんけ",
+			Description: "Don't ever talk to me or my son ever again.",
+		})
+
+		emoji, err := FindEmoji(1)
+		if err != nil{
+			fmt.Println(err)
+			return
+		}
+
+		err = s.MessageReactionAdd(m.ChannelID, mes.ID, emoji)
+		if err != nil {
+			fmt.Println("Error logging in")
+			fmt.Println(err)
+		}
+	}
 }
 
-//メッセージを受信した時の、声の初めと終わりにPrintされるようだ
-func onVoiceReceived(vc *discordgo.VoiceConnection, vs *discordgo.VoiceSpeakingUpdate) {
-    log.Print("しゃべったあああああ")
-}
+func FindEmoji(num int) (string, error){
 
-//メッセージを送信する関数
-func sendMessage(s *discordgo.Session, channelID string, msg string) {
-    _, err := s.ChannelMessageSend(c.ID, msg)
-
-    log.Println(">>> " + msg)
-    if err != nil {
-        log.Println("Error sending message: ", err)
-    }
+	switch(num){
+		case 0 : return "0️⃣", nil
+		case 1 : return "1️⃣", nil
+		case 2 : return "2️⃣", nil
+		case 3 : return "3️⃣", nil
+		case 4 : return "4️⃣", nil
+		case 5 : return "5️⃣", nil
+		case 6 : return "6️⃣", nil
+		case 7 : return "7️⃣", nil
+		case 8 : return "8️⃣", nil
+		case 9 : return "9️⃣", nil
+		case 10 : return "🔟", nil
+		default: return "", errors.New("絵文字が見つかりません")
+	}
 }

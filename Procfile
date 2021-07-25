@@ -1,1 +1,1 @@
-worker: SurveyBot
+worker: bin/SurveyBot

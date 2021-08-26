@@ -18,7 +18,7 @@ func SendHelp(s *discordgo.Session) {
 	confirmation_command = confirmation_command + ServerName + " : " + "サーバー名を確認する" + "\n"
 
 	s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-		Title:       "使い方",
+		Title:       "アンケート機能使い方",
 		Description: description,
 		Color:       0xA4B814,
 		Fields: []*discordgo.MessageEmbedField{
@@ -26,5 +26,11 @@ func SendHelp(s *discordgo.Session) {
 			&discordgo.MessageEmbedField{Name: "キャンセルコマンド", Value: Cancel + " : " + "アンケートの作成を中止する" + "\n", Inline: true},
 			&discordgo.MessageEmbedField{Name: "確認コマンド", Value: confirmation_command, Inline: false},
 		},
+	})
+
+	s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+		Title:       "シャッフル機能使い方",
+		Description: Shuffle + " : " + "与えられた項目をシャッフルする[項目は改行区切りで入力する]" + "\n",
+		Color:       0xA4B814,
 	})
 }

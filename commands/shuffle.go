@@ -16,9 +16,6 @@ var (
 func ShuffleCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, Shuffle) {
-		if !state {
-			return
-		}
 
 		temp := regexp.MustCompile(reg).Split(m.Content, -1)
 		if len(temp) <= 1 {

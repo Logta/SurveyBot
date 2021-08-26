@@ -27,15 +27,11 @@ func ShuffleCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		description := ""
-		contents := temp[0:]
-		numbers := []int{}
+		contents := temp[1:]
 
 		contents = utils.FisherYatesShuffle(contents)
 
 		for index, value := range contents {
-			if index == 0 {
-				continue
-			}
 
 			e, err := utils.FindEmoji(index)
 			if err != nil {
@@ -43,7 +39,6 @@ func ShuffleCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 
-			numbers = append(numbers, index)
 			description = description + e + " : " + value + "\n"
 		}
 

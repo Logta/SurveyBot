@@ -27,7 +27,7 @@ func ShuffleCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		description := ""
-		contents := temp[1:]
+		contents := temp[0:]
 		numbers := []int{}
 
 		contents = utils.FisherYatesShuffle(contents)

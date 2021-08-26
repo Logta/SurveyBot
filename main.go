@@ -2,14 +2,16 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/joho/godotenv"
 
 	"github.com/Logta/SurveyBot/commands"
-	"github.com/Logta/SurveyBot/utils"
+)
+
+var (
+	Help     = "!help"
 )
 
 func getenv(key, fallback string) string {
@@ -61,18 +63,19 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// Server名を取得して返します。
-	if m.Content == ServerName {
-		g, err := s.Guild(m.GuildID)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Println(g.Name)
-		s.ChannelMessageSend(m.ChannelID, g.Name)
-	}
+	// if m.Content == ServerName {
+	// 	g, err := s.Guild(m.GuildID)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	log.Println(g.Name)
+	// 	s.ChannelMessageSend(m.ChannelID, g.Name)
+	// }
 
 	commands.SurveyCommands(s, m)
+	commands.ShuffleCommands(s, m)
 
 	if m.Content == Help {
-		commands.SendHelp(s)
+		commands.SendHelp(s, m)
 	}
 }

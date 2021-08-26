@@ -3,6 +3,7 @@ package commands
 import (
 	"regexp"
 	"strings"
+	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/utils"
@@ -12,7 +13,7 @@ var (
 	Shuffle = "!shuffle"
 )
 
-func SurveyCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
+func ShuffleCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, Shuffle) {
 		if !state {
@@ -32,9 +33,9 @@ func SurveyCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 		contents := temp[1:]
 		numbers := []int{}
 
-		contens = utils.FisherYatesShuffle(contents)
+		contents = utils.FisherYatesShuffle(contents)
 
-		for index, value := range contens {
+		for index, value := range contents {
 			if index == 0 {
 				continue
 			}
@@ -49,7 +50,7 @@ func SurveyCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 			description = description + e + " : " + value + "\n"
 		}
 
-		mes, _ := s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
+		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 			Title:       "シャッフル結果",
 			Description: description,
 			Color:       0x141DB8,

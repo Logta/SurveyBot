@@ -4,7 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-func SendHelp(s *discordgo.Session) {
+func SendHelp(s *discordgo.Session, m *discordgo.MessageCreate) {
 	description := "基本コマンドを上から順に実行することでアンケートが作成できる" + "\n" + "回答項目ごとにスタンプが作成されるため、回答の際には回答項目に対応するスタンプを押下する"
 
 	base_command := ""
@@ -15,7 +15,7 @@ func SendHelp(s *discordgo.Session) {
 	confirmation_command := ""
 	confirmation_command = confirmation_command + CheckTitle + " : " + "アンケートのタイトルを確認する" + "\n"
 	confirmation_command = confirmation_command + CheckState + " : " + "アンケートの設定状況を確認する" + "\n"
-	confirmation_command = confirmation_command + ServerName + " : " + "サーバー名を確認する" + "\n"
+	// confirmation_command = confirmation_command + ServerName + " : " + "サーバー名を確認する" + "\n"
 
 	s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
 		Title:       "アンケート機能使い方",

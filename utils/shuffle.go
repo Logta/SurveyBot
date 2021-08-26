@@ -1,4 +1,7 @@
 package utils
+import (
+    "math/rand"
+)
 
 func FisherYatesShuffle(data []string) []string {
 	n := len(data)

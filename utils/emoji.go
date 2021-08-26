@@ -1,4 +1,7 @@
 package utils
+import (
+	"errors"
+)
 
 func FindEmoji(num int) (string, error) {
 

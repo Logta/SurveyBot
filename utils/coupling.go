@@ -1,6 +1,7 @@
 package utils
 import (
     "math/rand"
+	"regexp"
 )
 
 // カップリングする
@@ -18,7 +19,6 @@ func Coupling(lines [][]string, coupling [][]string) [][]string {
 		line[c] = line[len(line)-1] 
 		lines[i] = line[:len(line)-1]
     }
-    fmt.Println(lines)
 	coupling = append(coupling, couple)
 	if !last { coupling = Coupling(lines, coupling) }
 
@@ -29,7 +29,7 @@ func GetItemSets(data []string, splitter string) [][]string {
     var lines [][]string
     for i := 1; i < len(data); i++{
         line := data[i]
-		t := regexp.MustCompile(regCSV).Split(line, -1)
+		t := regexp.MustCompile(splitter).Split(line, -1)
 		lines = append(lines, t)
     }
 	return lines

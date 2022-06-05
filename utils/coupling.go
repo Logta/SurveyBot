@@ -27,7 +27,7 @@ func Coupling(lines [][]string, coupling [][]string) [][]string {
 // 与えられた列をカンマ区切りで配列に格納して２次元配列にする
 func GetItemSets(data []string, splitter string) [][]string {
     var lines [][]string
-    for i := 1; i < len(data); i++{
+    for i := 0; i < len(data); i++{
         line := data[i]
 		t := regexp.MustCompile(splitter).Split(line, -1)
 		lines = append(lines, t)

@@ -20,6 +20,8 @@ var (
 	state = false
 	title = ""
 	reg   = "\r\n|\n| |,"
+	regIndention   = "\r\n|\n"
+	regCSV   = ","
 )
 
 func SurveyCommands(s *discordgo.Session, m *discordgo.MessageCreate) {

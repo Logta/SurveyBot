@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strings"
 	"fmt"
+	"log"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/utils"
@@ -25,10 +26,17 @@ func CouplingCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		description := ""
 		lines := temp[1:]
+		log.Printf("メッセージを読み込んで改行をキーにリスト化")
+		log.Printf(lines)
+
 		itemSets := utils.GetItemSets(lines, regCSV)
+		log.Printf("メッセージをカンマをキーに２次元リスト化")
+		log.Printf(itemSets)
 
 		var base [][]string
 		result := utils.Coupling(itemSets, base)
+		log.Printf("カップリングを実行した結果")
+		log.Printf(result)
 
 		for index, value := range result {
 

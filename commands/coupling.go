@@ -25,7 +25,7 @@ func CouplingCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		description := ""
 		lines := temp[1:]
-		itemSets := utils.GetItemSets(temp, regCSV)
+		itemSets := utils.GetItemSets(lines, regCSV)
 
 		var base [][]string
 		result := utils.Coupling(itemSets, base)

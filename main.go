@@ -74,6 +74,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	commands.SurveyCommands(s, m)
 	commands.ShuffleCommands(s, m)
+	commands.CouplingCommands(s, m)
 
 	if m.Content == Help {
 		commands.SendHelp(s, m)

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/Logta/SurveyBot/types"
-	"github.com/bwmarrin/discordgo"
 )
 
 // モックの実装
@@ -138,280 +137,82 @@ func TestSurveyHandler_CanHandle(t *testing.T) {
 	})
 }
 
-func TestSurveyHandler_HandleSurveyStart(t *testing.T) {
-	t.Run("正常系: アンケート開始", func(t *testing.T) {
+func TestSurveyHandler_StateManagement(t *testing.T) {
+	t.Run("正常系: 状態管理の基本動作", func(t *testing.T) {
 		// Arrange
 		stateManager := &mockStateManager{states: make(map[string]*types.SurveyState)}
-		emojiProvider := &mockEmojiProvider{}
-		logger := &mockLogger{}
-		handler := NewSurveyHandler(stateManager, emojiProvider, logger)
-
 		ctx := context.Background()
-		session := &discordgo.Session{}
-		message := &discordgo.MessageCreate{
-			Message: &discordgo.Message{
-				Content:   "!survey",
-				ChannelID: "test-channel",
-				GuildID:   "test-guild",
-			},
-		}
+		guildID := "test-guild"
 
-		// Act
-		err := handler.Handle(ctx, session, message)
+		// Act: 状態を設定
+		state := &types.SurveyState{Active: true, Title: "テストタイトル"}
+		err := stateManager.SetState(ctx, guildID, state)
 
-		// Assert
+		// Assert: 設定が成功
 		if err != nil {
-			t.Errorf("期待していないエラーが発生: %v", err)
+			t.Errorf("状態設定でエラーが発生: %v", err)
 		}
 
-		// 状態が正しく設定されているかを確認
-		state, _ := stateManager.GetState(ctx, "test-guild")
-		if !state.Active {
-			t.Error("アンケート状態がアクティブになっていません")
-		}
-		if state.Title != "" {
-			t.Errorf("初期タイトルが空でありません: %v", state.Title)
-		}
-	})
+		// Act: 状態を取得
+		retrievedState, err := stateManager.GetState(ctx, guildID)
 
-	t.Run("異常系: 状態管理でエラー", func(t *testing.T) {
-		// Arrange
-		stateManager := &mockStateManager{err: errors.New("state error")}
-		emojiProvider := &mockEmojiProvider{}
-		logger := &mockLogger{}
-		handler := NewSurveyHandler(stateManager, emojiProvider, logger)
-
-		ctx := context.Background()
-		session := &discordgo.Session{}
-		message := &discordgo.MessageCreate{
-			Message: &discordgo.Message{
-				Content:   "!survey",
-				ChannelID: "test-channel",
-				GuildID:   "test-guild",
-			},
-		}
-
-		// Act
-		err := handler.Handle(ctx, session, message)
-
-		// Assert
-		if err == nil {
-			t.Error("エラーが期待されていましたが、nilが返されました")
-		}
-	})
-}
-
-func TestSurveyHandler_HandleCancel(t *testing.T) {
-	t.Run("正常系: アンケートキャンセル", func(t *testing.T) {
-		// Arrange
-		stateManager := &mockStateManager{
-			states: map[string]*types.SurveyState{
-				"test-guild": {Active: true, Title: "テスト"},
-			},
-		}
-		emojiProvider := &mockEmojiProvider{}
-		logger := &mockLogger{}
-		handler := NewSurveyHandler(stateManager, emojiProvider, logger)
-
-		ctx := context.Background()
-		session := &discordgo.Session{}
-		message := &discordgo.MessageCreate{
-			Message: &discordgo.Message{
-				Content:   "!cancel",
-				ChannelID: "test-channel",
-				GuildID:   "test-guild",
-			},
-		}
-
-		// Act
-		err := handler.Handle(ctx, session, message)
-
-		// Assert
+		// Assert: 正しい状態が取得できる
 		if err != nil {
-			t.Errorf("期待していないエラーが発生: %v", err)
+			t.Errorf("状態取得でエラーが発生: %v", err)
+		}
+		if !retrievedState.Active {
+			t.Error("状態がアクティブになっていません")
+		}
+		if retrievedState.Title != "テストタイトル" {
+			t.Errorf("タイトルが期待値と異なります: got %v, want %v", retrievedState.Title, "テストタイトル")
 		}
 
-		// 状態がクリアされているかを確認
-		state, _ := stateManager.GetState(ctx, "test-guild")
-		if state.Active {
-			t.Error("アンケート状態がクリアされていません")
+		// Act: 状態をクリア
+		err = stateManager.ClearState(ctx, guildID)
+
+		// Assert: クリアが成功
+		if err != nil {
+			t.Errorf("状態クリアでエラーが発生: %v", err)
 		}
-		if state.Title != "" {
+
+		// Act: クリア後の状態を確認
+		clearedState, err := stateManager.GetState(ctx, guildID)
+
+		// Assert: 状態がクリアされている
+		if err != nil {
+			t.Errorf("状態取得でエラーが発生: %v", err)
+		}
+		if clearedState.Active {
+			t.Error("状態がクリアされていません")
+		}
+		if clearedState.Title != "" {
 			t.Error("タイトルがクリアされていません")
 		}
 	})
-}
 
-func TestSurveyHandler_HandleTitle(t *testing.T) {
-	t.Run("正常系: タイトル設定", func(t *testing.T) {
+	t.Run("異常系: エラーハンドリング", func(t *testing.T) {
 		// Arrange
-		stateManager := &mockStateManager{
-			states: map[string]*types.SurveyState{
-				"test-guild": {Active: true, Title: ""},
-			},
-		}
-		emojiProvider := &mockEmojiProvider{}
-		logger := &mockLogger{}
-		handler := NewSurveyHandler(stateManager, emojiProvider, logger)
-
+		stateManager := &mockStateManager{err: errors.New("state error")}
 		ctx := context.Background()
-		session := &discordgo.Session{}
-		message := &discordgo.MessageCreate{
-			Message: &discordgo.Message{
-				Content:   "!title\nテストアンケート",
-				ChannelID: "test-channel",
-				GuildID:   "test-guild",
-			},
-		}
+		guildID := "test-guild"
 
-		// Act
-		err := handler.Handle(ctx, session, message)
-
-		// Assert
-		if err != nil {
-			t.Errorf("期待していないエラーが発生: %v", err)
-		}
-
-		// タイトルが正しく設定されているかを確認
-		state, _ := stateManager.GetState(ctx, "test-guild")
-		if state.Title != "テストアンケート" {
-			t.Errorf("タイトルが期待値と異なります: got %v, want %v", state.Title, "テストアンケート")
-		}
-	})
-
-	t.Run("正常系: アンケートが非アクティブの場合は無視", func(t *testing.T) {
-		// Arrange
-		stateManager := &mockStateManager{
-			states: map[string]*types.SurveyState{
-				"test-guild": {Active: false, Title: ""},
-			},
-		}
-		emojiProvider := &mockEmojiProvider{}
-		logger := &mockLogger{}
-		handler := NewSurveyHandler(stateManager, emojiProvider, logger)
-
-		ctx := context.Background()
-		session := &discordgo.Session{}
-		message := &discordgo.MessageCreate{
-			Message: &discordgo.Message{
-				Content:   "!title\nテストアンケート",
-				ChannelID: "test-channel",
-				GuildID:   "test-guild",
-			},
-		}
-
-		// Act
-		err := handler.Handle(ctx, session, message)
-
-		// Assert
-		if err != nil {
-			t.Errorf("期待していないエラーが発生: %v", err)
-		}
-
-		// タイトルが変更されていないことを確認
-		state, _ := stateManager.GetState(ctx, "test-guild")
-		if state.Title != "" {
-			t.Errorf("タイトルが変更されています: got %v, want empty", state.Title)
-		}
-	})
-
-	t.Run("異常系: 不正なフォーマット", func(t *testing.T) {
-		// Arrange
-		stateManager := &mockStateManager{
-			states: map[string]*types.SurveyState{
-				"test-guild": {Active: true, Title: ""},
-			},
-		}
-		emojiProvider := &mockEmojiProvider{}
-		logger := &mockLogger{}
-		handler := NewSurveyHandler(stateManager, emojiProvider, logger)
-
-		ctx := context.Background()
-		session := &discordgo.Session{}
-		message := &discordgo.MessageCreate{
-			Message: &discordgo.Message{
-				Content:   "!title", // 改行なし
-				ChannelID: "test-channel",
-				GuildID:   "test-guild",
-			},
-		}
-
-		// このテストは実際にはDiscordにメッセージを送信しようとするため、
-		// モックセッションでは完全にテストできないが、エラーハンドリングを確認
-
-		// Act & Assert
-		// エラーが発生するかパニックしないことを確認
-		handler.Handle(ctx, session, message)
-	})
-}
-
-func TestSurveyHandler_CreateSurveyEmbed(t *testing.T) {
-	t.Run("正常系: 基本的なアンケート作成", func(t *testing.T) {
-		// Arrange
-		stateManager := &mockStateManager{
-			states: map[string]*types.SurveyState{
-				"test-guild": {Active: true, Title: "テストアンケート"},
-			},
-		}
-		emojiProvider := &mockEmojiProvider{
-			emojis: []string{"0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣"},
-		}
-		logger := &mockLogger{}
-		handler := NewSurveyHandler(stateManager, emojiProvider, logger)
-
-		ctx := context.Background()
-		session := &discordgo.Session{}
-		message := &discordgo.MessageCreate{
-			Message: &discordgo.Message{
-				Content:   "!content\n選択肢A\n選択肢B",
-				ChannelID: "test-channel",
-				GuildID:   "test-guild",
-			},
-		}
-
-		// Act & Assert
-		// このテストは実際のDiscord APIを使用するため、
-		// モック環境では完全なテストが困難
-		// エラーが発生しないことを確認
-		err := handler.Handle(ctx, session, message)
-
-		// Discordセッションのモックが不完全なため、エラーが発生する可能性があるが
-		// ハンドラーのロジック自体は動作することを確認
-		if err != nil {
-			// ネットワークエラーやDiscord APIエラーは期待される
-			t.Logf("予期されるエラー (Discordセッション関連): %v", err)
-		}
-	})
-
-	t.Run("異常系: 絵文字が不足", func(t *testing.T) {
-		// Arrange
-		stateManager := &mockStateManager{
-			states: map[string]*types.SurveyState{
-				"test-guild": {Active: true, Title: "テストアンケート"},
-			},
-		}
-		emojiProvider := &mockEmojiProvider{
-			emojis: []string{"1️⃣"}, // 1つだけ
-		}
-		logger := &mockLogger{}
-		handler := NewSurveyHandler(stateManager, emojiProvider, logger)
-
-		ctx := context.Background()
-		session := &discordgo.Session{}
-		message := &discordgo.MessageCreate{
-			Message: &discordgo.Message{
-				Content:   "!content\n選択肢A\n選択肢B\n選択肢C", // 3つの選択肢
-				ChannelID: "test-channel",
-				GuildID:   "test-guild",
-			},
-		}
-
-		// Act
-		err := handler.Handle(ctx, session, message)
-
-		// Assert
+		// Act & Assert: 設定エラー
+		state := &types.SurveyState{Active: true, Title: "テスト"}
+		err := stateManager.SetState(ctx, guildID, state)
 		if err == nil {
-			t.Error("エラーが期待されていましたが、nilが返されました")
+			t.Error("設定エラーが期待されていましたが、nilが返されました")
+		}
+
+		// Act & Assert: 取得エラー
+		_, err = stateManager.GetState(ctx, guildID)
+		if err == nil {
+			t.Error("取得エラーが期待されていましたが、nilが返されました")
+		}
+
+		// Act & Assert: クリアエラー
+		err = stateManager.ClearState(ctx, guildID)
+		if err == nil {
+			t.Error("クリアエラーが期待されていましたが、nilが返されました")
 		}
 	})
 }

@@ -1,34 +1,39 @@
 package utils
+
 import (
-	"errors"
+	"context"
+	"fmt"
+
+	"github.com/Logta/SurveyBot/types"
 )
 
-func FindEmoji(num int) (string, error) {
+type emojiProvider struct {
+	emojis []string
+}
 
-	switch num {
-	case 0:
-		return "0️⃣", nil
-	case 1:
-		return "1️⃣", nil
-	case 2:
-		return "2️⃣", nil
-	case 3:
-		return "3️⃣", nil
-	case 4:
-		return "4️⃣", nil
-	case 5:
-		return "5️⃣", nil
-	case 6:
-		return "6️⃣", nil
-	case 7:
-		return "7️⃣", nil
-	case 8:
-		return "8️⃣", nil
-	case 9:
-		return "9️⃣", nil
-	case 10:
-		return "🔟", nil
-	default:
-		return "", errors.New("絵文字が見つかりません")
+// NewEmojiProvider creates a new emoji provider
+func NewEmojiProvider() types.EmojiProvider {
+	return &emojiProvider{
+		emojis: []string{
+			"0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣",
+			"5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟",
+		},
 	}
+}
+
+func (e *emojiProvider) GetEmoji(ctx context.Context, index int) (string, error) {
+	if index < 0 || index >= len(e.emojis) {
+		return "", fmt.Errorf("emoji index %d out of range [0-%d]", index, len(e.emojis)-1)
+	}
+	return e.emojis[index], nil
+}
+
+func (e *emojiProvider) GetMaxEmojis() int {
+	return len(e.emojis)
+}
+
+// Legacy function for backward compatibility
+func FindEmoji(num int) (string, error) {
+	provider := NewEmojiProvider()
+	return provider.GetEmoji(context.Background(), num)
 }

@@ -1,82 +1,51 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"context"
+	"log"
 
-	"github.com/bwmarrin/discordgo"
-	"github.com/joho/godotenv"
-
-	"github.com/Logta/SurveyBot/commands"
-)
-
-var (
-	Help     = "!help"
-)
-
-func getenv(key, fallback string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return fallback
-	}
-	return value
-}
-
-var (
-	stopBot = make(chan bool)
+	"github.com/Logta/SurveyBot/pkg/bot"
+	"github.com/Logta/SurveyBot/pkg/config"
+	"github.com/Logta/SurveyBot/pkg/logger"
+	"github.com/Logta/SurveyBot/pkg/state"
+	"github.com/Logta/SurveyBot/handlers"
+	"github.com/Logta/SurveyBot/utils"
 )
 
 func main() {
-	err := godotenv.Load(fmt.Sprintf("./%s.env", os.Getenv("GO_ENV")))
+	ctx := context.Background()
 
-	//Discordのセッションを作成
-	dg, err := discordgo.New("Bot " + getenv("DISCORD_TOKEN", ""))
+	// Load configuration
+	cfg, err := config.Load()
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
-		return
+		log.Fatalf("Failed to load config: %v", err)
 	}
+
+	// Initialize logger
+	logger := logger.New()
+
+	// Initialize dependencies
+	stateManager := state.NewMemoryStateManager()
+	emojiProvider := utils.NewEmojiProvider()
+	shuffler := utils.NewShuffler()
+	coupler := utils.NewCoupler()
+
+	// Create bot instance
+	b, err := bot.New(cfg, logger)
 	if err != nil {
-		fmt.Println("Error logging in")
-		fmt.Println(err)
+		logger.Error(ctx, "Failed to create bot", err)
+		log.Fatalf("Failed to create bot: %v", err)
 	}
 
-	dg.AddHandler(messageCreate) //全てのWSAPIイベントが発生した時のイベントハンドラを追加
+	// Register handlers
+	b.RegisterHandler(handlers.NewSurveyHandler(stateManager, emojiProvider, logger))
+	b.RegisterHandler(handlers.NewShuffleHandler(shuffler, emojiProvider, logger))
+	b.RegisterHandler(handlers.NewCouplingHandler(coupler, emojiProvider, logger))
+	b.RegisterHandler(handlers.NewHelpHandler(logger))
 
-	// websocketを開いてlistening開始
-	err = dg.Open()
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer dg.Close()
-
-	fmt.Println("Listening...")
-	<-stopBot //プログラムが終了しないようロック
-	return
-}
-
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	// Server名を取得して返します。
-	// if m.Content == ServerName {
-	// 	g, err := s.Guild(m.GuildID)
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	log.Println(g.Name)
-	// 	s.ChannelMessageSend(m.ChannelID, g.Name)
-	// }
-
-	commands.SurveyCommands(s, m)
-	commands.ShuffleCommands(s, m)
-	commands.CouplingCommands(s, m)
-
-	if m.Content == Help {
-		commands.SendHelp(s, m)
+	// Start bot
+	if err := b.Start(ctx); err != nil {
+		logger.Error(ctx, "Bot failed to start", err)
+		log.Fatalf("Bot failed to start: %v", err)
 	}
 }

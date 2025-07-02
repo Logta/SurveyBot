@@ -27,7 +27,7 @@ func CouplingCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 		description := ""
 		lines := temp[1:]
 		log.Printf("メッセージを読み込んで改行をキーにリスト化")
-		log.Printf(strings.Join(lines, ",") + "\n")
+		log.Printf("%s\n", strings.Join(lines, ","))
 
 		itemSets := utils.GetItemSets(lines, regCSV)
 		log.Printf("メッセージをカンマをキーに２次元リスト化")

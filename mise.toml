@@ -1,0 +1,35 @@
+[tools]
+go = "latest"
+
+[env]
+GO111MODULE = "on"
+GOPROXY = "https://proxy.golang.org,direct"
+GOSUMDB = "sum.golang.org"
+
+[tasks.build]
+description = "Build the SurveyBot"
+run = "go build -o SurveyBot ."
+
+[tasks.test]
+description = "Run tests"
+run = "go test ./..."
+
+[tasks.run]
+description = "Run the bot"
+run = "go run ."
+
+[tasks.fmt]
+description = "Format Go code"
+run = "go fmt ./..."
+
+[tasks.vet]
+description = "Run go vet"
+run = "go vet ./..."
+
+[tasks.mod-tidy]
+description = "Tidy go modules"
+run = "go mod tidy"
+
+[tasks.deps]
+description = "Download dependencies"
+run = "go mod download"

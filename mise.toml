@@ -1,35 +1,104 @@
 [tools]
-go = "latest"
+go = "1.24"
 
 [env]
 GO111MODULE = "on"
 GOPROXY = "https://proxy.golang.org,direct"
 GOSUMDB = "sum.golang.org"
+CGO_ENABLED = "0"
 
 [tasks.build]
 description = "Build the SurveyBot"
 run = "go build -o SurveyBot ."
 
+[tasks.build-release]
+description = "Build optimized release binary"
+run = "go build -ldflags='-s -w' -o SurveyBot ."
+
 [tasks.test]
-description = "Run tests"
+description = "Run all tests"
 run = "go test ./..."
 
+[tasks.test-verbose]
+description = "Run tests with verbose output"
+run = "go test -v ./..."
+
+[tasks.test-coverage]
+description = "Run tests with coverage report"
+run = "go test -coverprofile=coverage.out ./... && go tool cover -html=coverage.out -o coverage.html"
+
+[tasks.test-short]
+description = "Run only fast tests"
+run = "go test -short ./..."
+
+[tasks.test-race]
+description = "Run tests with race detection"
+run = "go test -race ./..."
+
+[tasks.bench]
+description = "Run benchmarks"
+run = "go test -bench=. ./..."
+
 [tasks.run]
-description = "Run the bot"
+description = "Run the bot in development mode"
 run = "go run ."
+
+[tasks.run-prod]
+description = "Run the built binary"
+run = "./SurveyBot"
 
 [tasks.fmt]
 description = "Format Go code"
 run = "go fmt ./..."
 
 [tasks.vet]
-description = "Run go vet"
+description = "Run go vet for static analysis"
 run = "go vet ./..."
 
+[tasks.lint]
+description = "Run comprehensive linting (requires golangci-lint)"
+run = "golangci-lint run"
+
 [tasks.mod-tidy]
-description = "Tidy go modules"
-run = "go mod tidy"
+description = "Tidy and verify go modules"
+run = "go mod tidy && go mod verify"
 
 [tasks.deps]
 description = "Download dependencies"
 run = "go mod download"
+
+[tasks.deps-update]
+description = "Update all dependencies to latest"
+run = "go get -u all && go mod tidy"
+
+[tasks.clean]
+description = "Clean build artifacts and cache"
+run = "go clean -cache -modcache -testcache && rm -f SurveyBot coverage.out coverage.html"
+
+[tasks.dev]
+description = "Development workflow: format, vet, test"
+run = "mise run fmt && mise run vet && mise run test"
+
+[tasks.ci]
+description = "CI/CD workflow: comprehensive checks"
+run = "mise run fmt && mise run vet && mise run test-race && mise run test-coverage"
+
+[tasks.docker-build]
+description = "Build Docker image"
+run = "docker build -t surveybot:latest ."
+
+[tasks.docker-run]
+description = "Run Docker container"
+run = "docker run --rm -it --env-file .env surveybot:latest"
+
+[tasks.heroku-deploy]
+description = "Deploy to Heroku"
+run = "git push heroku main"
+
+[tasks.init-env]
+description = "Initialize environment file"
+run = "cp .env.example .env 2>/dev/null || echo 'DISCORD_TOKEN=your_token_here' > .env"
+
+[tasks.help]
+description = "Show available tasks"
+run = "mise tasks"

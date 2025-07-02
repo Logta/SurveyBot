@@ -248,7 +248,7 @@ func TestMemoryStateManager_Concurrency(t *testing.T) {
 		manager := NewMemoryStateManager()
 		ctx := context.Background()
 		guildID := "test-guild-concurrent"
-		
+
 		var wg sync.WaitGroup
 		numGoroutines := 100
 		numOperations := 10
@@ -258,14 +258,14 @@ func TestMemoryStateManager_Concurrency(t *testing.T) {
 			wg.Add(1)
 			go func(id int) {
 				defer wg.Done()
-				
+
 				for j := 0; j < numOperations; j++ {
 					// 並行して設定・取得・クリアを実行
 					state := &types.SurveyState{
 						Active: true,
 						Title:  "concurrent test",
 					}
-					
+
 					manager.SetState(ctx, guildID, state)
 					manager.GetState(ctx, guildID)
 					manager.ClearState(ctx, guildID)
@@ -293,7 +293,7 @@ func TestMemoryStateManager_Concurrency(t *testing.T) {
 		// Arrange
 		manager := NewMemoryStateManager()
 		ctx := context.Background()
-		
+
 		var wg sync.WaitGroup
 		numGuilds := 50
 
@@ -302,16 +302,16 @@ func TestMemoryStateManager_Concurrency(t *testing.T) {
 			wg.Add(1)
 			go func(guildNum int) {
 				defer wg.Done()
-				
+
 				guildID := string(rune('A' + guildNum))
 				state := &types.SurveyState{
 					Active: true,
 					Title:  guildID + "のアンケート",
 				}
-				
+
 				manager.SetState(ctx, guildID, state)
 				result, _ := manager.GetState(ctx, guildID)
-				
+
 				if result.Title != state.Title {
 					t.Errorf("ギルド %s の状態が期待値と異なります", guildID)
 				}
@@ -326,9 +326,9 @@ func TestMemoryStateManager_Concurrency(t *testing.T) {
 			guildID := string(rune('A' + i))
 			result, _ := manager.GetState(ctx, guildID)
 			expectedTitle := guildID + "のアンケート"
-			
+
 			if result.Title != expectedTitle {
-				t.Errorf("ギルド %s の最終状態が期待値と異なります: got %v, want %v", 
+				t.Errorf("ギルド %s の最終状態が期待値と異なります: got %v, want %v",
 					guildID, result.Title, expectedTitle)
 			}
 		}

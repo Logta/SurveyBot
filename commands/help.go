@@ -35,7 +35,7 @@ func SendHelp(s *discordgo.Session, m *discordgo.MessageCreate) {
 	})
 
 	s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{
-		Title:       "カップリング機能使い方",
+		Title: "カップリング機能使い方",
 		Fields: []*discordgo.MessageEmbedField{
 			&discordgo.MessageEmbedField{Name: "基本コマンド", Value: Coupling + " : " + "与えられた項目で組み合わせを作る。組み合わせる集合は改行で区切り、集合内はカンマ区切りで入力。" + "\n", Inline: true},
 		},

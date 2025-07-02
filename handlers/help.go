@@ -3,8 +3,8 @@ package handlers
 import (
 	"context"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/types"
+	"github.com/bwmarrin/discordgo"
 )
 
 type helpHandler struct {
@@ -71,7 +71,7 @@ func (h *helpHandler) sendHelpEmbeds(ctx context.Context, s *discordgo.Session, 
 
 	// Coupling help embed
 	couplingEmbed := &discordgo.MessageEmbed{
-		Title:       "カップリング機能使い方",
+		Title: "カップリング機能使い方",
 		Fields: []*discordgo.MessageEmbedField{
 			{Name: "基本コマンド", Value: string(types.CmdCoupling) + " : " + "与えられた項目で組み合わせを作る。組み合わせる集合は改行で区切り、集合内はカンマ区切りで入力。" + "\n", Inline: true},
 		},

@@ -7,8 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/types"
+	"github.com/bwmarrin/discordgo"
 )
 
 type bot struct {

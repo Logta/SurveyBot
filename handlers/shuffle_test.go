@@ -70,7 +70,7 @@ func TestShuffleHandler_CanHandle(t *testing.T) {
 
 				// Assert
 				if result != tc.expected {
-					t.Errorf("コマンド判定が期待値と異なります: command=%v, got=%v, want=%v", 
+					t.Errorf("コマンド判定が期待値と異なります: command=%v, got=%v, want=%v",
 						tc.command, result, tc.expected)
 				}
 			})
@@ -135,7 +135,7 @@ func TestShuffleHandler_Handle(t *testing.T) {
 		if !handler.CanHandle("!shuffle") {
 			t.Error("Handler should handle shuffle command even without newline")
 		}
-		
+
 		t.Log("改行なしのケースでもハンドラーは適切にコマンドを認識します")
 	})
 
@@ -154,7 +154,7 @@ func TestShuffleHandler_Handle(t *testing.T) {
 		// ロジックレベルでの検証
 		maxEmojis := emojiProvider.GetMaxEmojis()
 		shuffledItems := shuffler.Shuffle(context.Background(), []string{"A", "B", "C", "D", "E"})
-		
+
 		if len(shuffledItems) > maxEmojis {
 			t.Log("絵文字不足のケースが正しく検出されます")
 		}
@@ -195,7 +195,7 @@ func TestShuffleHandler_CreateShuffleEmbed(t *testing.T) {
 
 		// Act & Assert
 		// createShuffleEmbedは内部メソッドなので、ロジックレベルでテスト
-		
+
 		// ハンドラーが正しく作成されることを確認
 		if handler.Name() != "ShuffleHandler" {
 			t.Errorf("Handler name mismatch: got %v, want ShuffleHandler", handler.Name())

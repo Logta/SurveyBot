@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/Logta/SurveyBot/types"
+	"github.com/joho/godotenv"
 )
 
 // Load loads configuration from environment variables

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/types"
+	"github.com/bwmarrin/discordgo"
 )
 
 // モックの実装
@@ -130,7 +130,7 @@ func TestSurveyHandler_CanHandle(t *testing.T) {
 
 				// Assert
 				if result != tc.expected {
-					t.Errorf("コマンド判定が期待値と異なります: command=%v, got=%v, want=%v", 
+					t.Errorf("コマンド判定が期待値と異なります: command=%v, got=%v, want=%v",
 						tc.command, result, tc.expected)
 				}
 			})
@@ -338,7 +338,7 @@ func TestSurveyHandler_HandleTitle(t *testing.T) {
 
 		// このテストは実際にはDiscordにメッセージを送信しようとするため、
 		// モックセッションでは完全にテストできないが、エラーハンドリングを確認
-		
+
 		// Act & Assert
 		// エラーが発生するかパニックしないことを確認
 		handler.Handle(ctx, session, message)
@@ -374,7 +374,7 @@ func TestSurveyHandler_CreateSurveyEmbed(t *testing.T) {
 		// モック環境では完全なテストが困難
 		// エラーが発生しないことを確認
 		err := handler.Handle(ctx, session, message)
-		
+
 		// Discordセッションのモックが不完全なため、エラーが発生する可能性があるが
 		// ハンドラーのロジック自体は動作することを確認
 		if err != nil {

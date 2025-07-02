@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/types"
 	"github.com/Logta/SurveyBot/utils"
+	"github.com/bwmarrin/discordgo"
 )
 
 type couplingHandler struct {

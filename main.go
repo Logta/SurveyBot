@@ -4,11 +4,11 @@ import (
 	"context"
 	"log"
 
+	"github.com/Logta/SurveyBot/handlers"
 	"github.com/Logta/SurveyBot/pkg/bot"
 	"github.com/Logta/SurveyBot/pkg/config"
 	"github.com/Logta/SurveyBot/pkg/logger"
 	"github.com/Logta/SurveyBot/pkg/state"
-	"github.com/Logta/SurveyBot/handlers"
 	"github.com/Logta/SurveyBot/utils"
 )
 

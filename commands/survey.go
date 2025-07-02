@@ -1,12 +1,12 @@
 package commands
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
-	"fmt"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/utils"
+	"github.com/bwmarrin/discordgo"
 )
 
 var (
@@ -17,11 +17,11 @@ var (
 	CheckState = "!check state"
 	CheckTitle = "!check title"
 
-	state = false
-	title = ""
-	reg   = "\r\n|\n| |,"
-	regIndention   = "\r\n|\n"
-	regCSV   = ","
+	state        = false
+	title        = ""
+	reg          = "\r\n|\n| |,"
+	regIndention = "\r\n|\n"
+	regCSV       = ","
 )
 
 func SurveyCommands(s *discordgo.Session, m *discordgo.MessageCreate) {

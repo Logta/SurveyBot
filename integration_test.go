@@ -13,7 +13,7 @@ func TestSurveyWorkflow_Integration(t *testing.T) {
 		helper := NewTestHelper(t)
 		ctx := context.Background()
 		guildID := "integration-test-guild"
-		
+
 		surveyHandler := helper.CreateSurveyHandler()
 
 		// Act & Assert: アンケート開始
@@ -51,7 +51,7 @@ func TestHandlerChain_Integration(t *testing.T) {
 	t.Run("正常系: 複数ハンドラーの協調動作", func(t *testing.T) {
 		// Arrange
 		helper := NewTestHelper(t)
-		
+
 		handlers := []types.Handler{
 			helper.CreateSurveyHandler(),
 			helper.CreateShuffleHandler(),
@@ -60,7 +60,7 @@ func TestHandlerChain_Integration(t *testing.T) {
 		}
 
 		testCases := []struct {
-			command        string
+			command         string
 			expectedHandler string
 		}{
 			{"!survey", "SurveyHandler"},
@@ -85,7 +85,7 @@ func TestHandlerChain_Integration(t *testing.T) {
 				if handlingHandler == nil {
 					t.Errorf("No handler found for command: %s", tc.command)
 				} else if handlingHandler.Name() != tc.expectedHandler {
-					t.Errorf("Wrong handler for command %s: got %s, want %s", 
+					t.Errorf("Wrong handler for command %s: got %s, want %s",
 						tc.command, handlingHandler.Name(), tc.expectedHandler)
 				}
 			})
@@ -123,7 +123,7 @@ func TestUtilsIntegration(t *testing.T) {
 		shuffledItems := helper.Shuffler.Shuffle(ctx, originalItems)
 
 		if len(shuffledItems) != len(originalItems) {
-			t.Errorf("Shuffled items length mismatch: got %d, want %d", 
+			t.Errorf("Shuffled items length mismatch: got %d, want %d",
 				len(shuffledItems), len(originalItems))
 		}
 
@@ -146,7 +146,7 @@ func TestUtilsIntegration(t *testing.T) {
 			{"Red", "Blue"},
 			{"Circle", "Square"},
 		}
-		
+
 		couples, err := helper.Coupler.Couple(ctx, itemSets)
 		if err != nil {
 			t.Errorf("Failed to couple items: %v", err)
@@ -169,7 +169,7 @@ func TestStateManagement_Integration(t *testing.T) {
 		// Arrange
 		helper := NewTestHelper(t)
 		ctx := context.Background()
-		
+
 		guilds := []string{"guild1", "guild2", "guild3"}
 		titles := []string{"アンケート1", "アンケート2", "アンケート3"}
 

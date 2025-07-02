@@ -115,7 +115,7 @@ func TestShuffler_Shuffle(t *testing.T) {
 			for pos, count := range positions {
 				freq := float64(count)
 				if freq < expectedFreq*(1-tolerance) || freq > expectedFreq*(1+tolerance) {
-					t.Errorf("要素 %v の位置 %v の出現頻度が期待範囲外です: got %v, expected around %v", 
+					t.Errorf("要素 %v の位置 %v の出現頻度が期待範囲外です: got %v, expected around %v",
 						item, pos, freq, expectedFreq)
 				}
 			}

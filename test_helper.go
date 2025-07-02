@@ -4,11 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/Logta/SurveyBot/types"
-	"github.com/Logta/SurveyBot/pkg/state"
-	"github.com/Logta/SurveyBot/utils"
 	"github.com/Logta/SurveyBot/handlers"
 	"github.com/Logta/SurveyBot/pkg/logger"
+	"github.com/Logta/SurveyBot/pkg/state"
+	"github.com/Logta/SurveyBot/types"
+	"github.com/Logta/SurveyBot/utils"
 )
 
 // TestHelper provides common test utilities and mocks
@@ -58,7 +58,7 @@ func (h *TestHelper) SetupSurveyState(t *testing.T, guildID string, active bool,
 		Active: active,
 		Title:  title,
 	}
-	
+
 	err := h.StateManager.SetState(ctx, guildID, state)
 	if err != nil {
 		t.Fatalf("Failed to setup survey state: %v", err)
@@ -72,11 +72,11 @@ func (h *TestHelper) VerifySurveyState(t *testing.T, guildID string, expectedAct
 	if err != nil {
 		t.Fatalf("Failed to get survey state: %v", err)
 	}
-	
+
 	if state.Active != expectedActive {
 		t.Errorf("Survey active state mismatch: got %v, want %v", state.Active, expectedActive)
 	}
-	
+
 	if state.Title != expectedTitle {
 		t.Errorf("Survey title mismatch: got %v, want %v", state.Title, expectedTitle)
 	}

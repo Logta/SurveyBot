@@ -1,13 +1,13 @@
 package commands
 
 import (
-	"regexp"
-	"strings"
 	"fmt"
 	"log"
+	"regexp"
+	"strings"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/utils"
+	"github.com/bwmarrin/discordgo"
 )
 
 var (
@@ -44,8 +44,8 @@ func CouplingCommands(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 
-			description = description + e + " " + value[0] + " : " + 
-			strings.Join(value[1:], ",") + "\n"
+			description = description + e + " " + value[0] + " : " +
+				strings.Join(value[1:], ",") + "\n"
 		}
 
 		s.ChannelMessageSendEmbed(m.ChannelID, &discordgo.MessageEmbed{

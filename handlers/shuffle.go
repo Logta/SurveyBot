@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/Logta/SurveyBot/types"
+	"github.com/bwmarrin/discordgo"
 )
 
 type shuffleHandler struct {

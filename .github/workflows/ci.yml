@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+
+      - name: Download dependencies
+        run: mise run deps
+
+      - name: Format check
+        run: |
+          mise run fmt
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Code formatting issues found. Please run 'mise run fmt'"
+            git diff
+            exit 1
+          fi
+
+      - name: Vet
+        run: mise run vet
+
+      - name: Run tests with race detection
+        run: mise run test-race
+
+      - name: Generate coverage report
+        run: mise run test-coverage

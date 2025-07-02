@@ -33,7 +33,7 @@ run = "go test -short ./..."
 
 [tasks.test-race]
 description = "Run tests with race detection"
-run = "go test -race ./..."
+run = "CGO_ENABLED=1 go test -race ./..."
 
 [tasks.bench]
 description = "Run benchmarks"
